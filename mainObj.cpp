@@ -50,7 +50,7 @@ public:
     }
     int deleteDate()
     {
-        cout << "Dodac date utworzenia zadania?" << endl;
+        cout << "Dodac date zakonczenia zadania?" << endl;
         cout << "1.Tak 2. Nie" << endl;
         int input;
         cin >> input;
