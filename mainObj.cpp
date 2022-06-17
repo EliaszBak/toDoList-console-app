@@ -9,17 +9,17 @@
 
 using namespace std;
 bool RUN = true;
-int amountOfLines()
+int amountOfLines(string name)
 {
     int number_of_lines = 0;
     std::string line;
-    std::ifstream myfile("tasks.txt");
+    std::ifstream myfile(name);
     while (std::getline(myfile, line))
         ++number_of_lines;
 
     return number_of_lines;
 }
-int taskCounter = amountOfLines();
+int taskCounter = amountOfLines("tasks.txt");
 
 class Display
 {
@@ -32,8 +32,7 @@ public:
         system("cls");
         SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), cursorPosition);
     }
-
-    string addDate()
+    int createDate()
     {
         cout << "Dodac date utworzenia zadania?" << endl;
         cout << "1.Tak 2. Nie" << endl;
@@ -47,16 +46,28 @@ public:
             cout << "Enter a number.\n";
             cin >> input;
         }
-        if (input == 1)
+        return input;
+    }
+    int deleteDate()
+    {
+        cout << "Dodac date utworzenia zadania?" << endl;
+        cout << "1.Tak 2. Nie" << endl;
+        int input;
+        cin >> input;
+        while (cin.fail())
         {
-            std::time_t currentTime = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
-            return ctime(&currentTime);
-
+            cin.clear(); // clear input buffer to restore cin to a usable state
+            cin.ignore(INT_MAX, '\n'); // ignore last input
+            cout << "You can only enter numbers.\n";
+            cout << "Enter a number.\n";
+            cin >> input;
         }
-        else
-        {
-            return "";
-        }
+        return input;
+    }
+    string addDate()
+    {
+        std::time_t currentTime = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+        return ctime(&currentTime);
     }
 
     string getTask()
@@ -67,7 +78,12 @@ public:
         std::getline(cin >>std::ws, task);
         return(task);
     }
-
+    void pressButtonToContinue()
+    {
+        cout << "wcisnij guzik aby kontynuowac";
+        getchar(); 
+        getchar();
+    }
     void displayTasks(vector<string> tasks)
     {
         clearScreen();
@@ -75,9 +91,7 @@ public:
         {
             cout << task << endl;
         }
-        cout << "wcisnij guzik aby kontynuowac";
-        getchar(); 
-        getchar();
+
     }
     int getIdTask()
     {
@@ -175,7 +189,7 @@ public:
             else
             {
                 string task;
-                task = to_string(taskCounter) + ". " + line + " " + "data ukonczenia: " + date + "\n";
+                task = line + " " + "data ukonczenia: " + date + "\n";
                 finished << task << std::endl;
             }
         }
@@ -213,7 +227,9 @@ public:
     void addNewTask()
     {
         auto task = display.getTask();
-        auto date = display.addDate();
+        string date = "";
+        if (display.createDate() ==1)
+            date = display.addDate();
         file.writeToFile(task, date);
     }
 
@@ -236,7 +252,9 @@ public:
                     auto tasks = file.readTasks("tasks.txt");
                     display.displayTasks(tasks);
                     auto id = display.getIdTask();
-                    auto date = display.addDate();
+                    string date = "";
+                    if (display.deleteDate())
+                        date = display.addDate();
                     file.removeTask(id, date);
                     break;
                 }
@@ -244,6 +262,7 @@ public:
             {
                 auto tasks = file.readTasks("tasks.txt");
                 display.displayTasks(tasks);
+                display.pressButtonToContinue();
                 break;
             }
             
